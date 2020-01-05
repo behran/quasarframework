@@ -43,14 +43,17 @@ module.exports = function (ctx) {
       components: [
         'QHeader',
         'QFooter'
-        // 'QTabs',
-        // 'QTab',
-        // 'QRouteTab'
       ],
-      directives: [],
+      directives: [
+        'Ripple',
+        'ClosePopup'
+      ],
       
       // Quasar plugins
-      plugins: []
+      plugins: [
+        'Notify',
+        'Dialog'
+      ]
     },
     
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
@@ -85,7 +88,7 @@ module.exports = function (ctx) {
     devServer: {
       host: '0.0.0.0',
       https: false,
-      port: 8080,
+      port: 8226,
       open: false // opens browser window automatically
     },
     
