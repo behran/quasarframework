@@ -1,39 +1,49 @@
 <template>
-    <q-page class="q-pa-md">
-        <div class="row q-mb-lg">
-            <search/>
-            <sort/>
-        </div>
-        <p v-if="
+    <q-page>
+        <div class="q-pa-md absolute full-width full-height column">
+            <div class="row q-mb-lg">
+                <search/>
+                <sort/>
+            </div>
+            <p v-if="
             search &&
             !Object.keys(tasksTodo).length &&
             !Object.keys(tasksCompleted).length
         ">
-            no serach result</p>
+                no serach result</p>
 
-        <no-tasks
-                v-if="!Object.keys(tasksTodo).length && !search"
-        ></no-tasks>
+            <q-scroll-area class="q-scroll-area-tasks">
 
-        <tasks-todo
-                v-if="Object.keys(tasksTodo).length"
-                :tasksTodo="tasksTodo"
-        />
+                <no-tasks
+                        v-if="!Object.keys(tasksTodo).length && !search"
+                ></no-tasks>
 
-        <tasks-completed
-                v-if="Object.keys(tasksCompleted).length"
-                :tasksCompleted="tasksCompleted"
-        />
+                <tasks-todo
+                        v-if="Object.keys(tasksTodo).length"
+                        :tasksTodo="tasksTodo"
+                />
 
-        <div class="absolute-bottom text-center q-mb-lg">
-            <q-btn
-                    @click="showAddTask = true"
-                    round
-                    color="primary"
-                    size="24px"
-                    icon="add"
-            />
+                <tasks-completed
+                        v-if="Object.keys(tasksCompleted).length"
+                        :tasksCompleted="tasksCompleted"
+                        class="q-mb-xl"
+                />
+
+            </q-scroll-area>
+
+
+            <div class="absolute-bottom text-center q-mb-lg no-pointer-events">
+                <q-btn
+                        @click="showAddTask = true"
+                        round
+                        class="all-pointer-events"
+                        color="primary"
+                        size="24px"
+                        icon="add"
+                />
+            </div>
         </div>
+
 
         <q-dialog v-model="showAddTask">
             <add-task @close="showAddTask = false"></add-task>
@@ -73,5 +83,8 @@
 </script>
 
 <style>
-
+    .q-scroll-area-tasks {
+        display: flex;
+        flex-grow: 1;
+    }
 </style>

@@ -7,6 +7,7 @@
                 :rules="[val => !!val || 'Field is required']"
                 label="Task name"
                 autofocus
+                v-select-all
                 ref="name"
                 class="col"
         >
@@ -22,9 +23,14 @@
 </template>
 
 <script>
+  import { selectAll } from 'src/directives/directive-select-all'
+
   export default {
     name: 'ModalTaskName',
-    props: [ 'name' ]
+    props: [ 'name' ],
+    directives: {
+      selectAll
+    }
   }
 </script>
 
