@@ -11,9 +11,11 @@
     name: 'App',
     mounted () {
       this.getSettings()
+      this.handleAuthStateChange()
     },
     methods: {
-      ...mapActions('settings', [ 'getSettings' ])
+      ...mapActions('settings', [ 'getSettings' ]),
+      ...mapActions('auth', [ 'handleAuthStateChange' ])
     }
   }
 </script>

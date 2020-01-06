@@ -6,10 +6,19 @@
                     Awesome Todo
                 </q-toolbar-title>
                 <q-btn
+                        v-if="!loggedIn"
                         to="/auth"
                         flat
                         icon-right="account_circle"
                         label="Login"
+                        class="absolute-right"
+                />
+                <q-btn
+                        v-else
+                        @click="logoutUser"
+                        flat
+                        icon-right="account_circle"
+                        label="Logout"
                         class="absolute-right"
                 />
 
@@ -69,9 +78,14 @@
 </template>
 
 <script>
+  import { mapState, mapActions } from 'vuex'
+  import { openURL } from 'quasar'
+
   export default {
     name: 'MyLayout',
-
+    computed: {
+      ...mapState('auth', [ 'loggedIn' ])
+    },
     data () {
       return {
         leftDrawerOpen: this.$q.platform.is.desktop,
@@ -88,6 +102,10 @@
           }
         ]
       }
+    },
+    methods: {
+      ...mapActions('auth', [ 'logoutUser' ]),
+      openURL
     }
   }
 </script>
