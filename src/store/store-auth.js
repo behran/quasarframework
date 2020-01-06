@@ -1,6 +1,6 @@
 import { LocalStorage, Loading } from 'quasar'
 import { firebaseAuth } from 'boot/firebase'
-import { showErrorMessague } from 'src/functions/function-show-error-message'
+import { showErrorMessage } from 'src/functions/function-show-error-message'
 
 const state = {
   loggedIn: false
@@ -11,7 +11,7 @@ const actions = {
     firebaseAuth.createUserWithEmailAndPassword(payload.email, payload.password).then(response => {
       console.log(response)
     }).catch(error => {
-      showErrorMessague(error.message)
+      showErrorMessage(error.message)
     })
   },
   logoutUser () {
@@ -22,7 +22,7 @@ const actions = {
     firebaseAuth.signInWithEmailAndPassword(payload.email, payload.password).then(response => {
       console.log(response)
     }).catch(error => {
-      showErrorMessague(error.message)
+      showErrorMessage(error.message)
     })
   },
   handleAuthStateChange ({ commit, dispatch }) {
