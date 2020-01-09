@@ -1,27 +1,28 @@
 import Vue from 'vue'
 
 import { uid } from 'quasar'
+import { firebaseDb, firebaseAuth } from 'boot/firebase'
 
 const state = {
   tasks: {
-    'ID1': {
-      name: 'Go to shop',
-      completed: false,
-      dueDate: '2019/06/12',
-      dueTime: '18:30'
-    },
-    'ID2': {
-      name: 'Get bananas',
-      completed: false,
-      dueDate: '2019/06/13',
-      dueTime: '14:00'
-    },
-    'ID3': {
-      name: 'Get apples',
-      completed: false,
-      dueDate: '2019/06/14',
-      dueTime: '16:00'
-    }
+    // 'ID1': {
+    //   name: 'Go to shop',
+    //   completed: false,
+    //   dueDate: '2019/06/12',
+    //   dueTime: '18:30'
+    // },
+    // 'ID2': {
+    //   name: 'Get bananas',
+    //   completed: false,
+    //   dueDate: '2019/06/13',
+    //   dueTime: '14:00'
+    // },
+    // 'ID3': {
+    //   name: 'Get apples',
+    //   completed: false,
+    //   dueDate: '2019/06/14',
+    //   dueTime: '16:00'
+    // }
   },
   search: '',
   sort: 'dueDate'
@@ -46,25 +47,71 @@ const mutations = {
 }
 
 const actions = {
-  updateTask ({ commit }, payload) {
-    commit('updateTask', payload)
+  updateTask ({ dispatch }, payload) {
+    dispatch('fbUpdateTask', payload)
   },
-  deleteTask ({ commit }, id) {
-    commit('deleteTask', id)
+  deleteTask ({ dispatch }, id) {
+    dispatch('fbDeleteTask', id)
   },
-  addTask ({ commit }, task) {
+  addTask ({ dispatch }, task) {
     let taskId = uid()
     let payload = {
       id: taskId,
       task: task
     }
-    commit('addTask', payload)
+    dispatch('fbAddTask', payload)
   },
   setSearch ({ commit }, value) {
     commit('setSearch', value)
   },
   setSort ({ commit }, value) {
     commit('setSort', value)
+  },
+  fbReadData ({ commit }) {
+    const { uid } = firebaseAuth.currentUser
+    let userTasks = firebaseDb.ref(`tasks/${uid}`)
+    
+    userTasks.on('child_added', spanshot => {
+      let task = spanshot.val()
+      let payload = {
+        id: spanshot.key,
+        task: task
+      }
+      commit('addTask', payload)
+    })
+    //сдежить в реал тайме изменния
+    userTasks.on('child_changed', spanshot => {
+      let task = spanshot.val()
+      let payload = {
+        id: spanshot.key,
+        updates: task
+      }
+      commit('updateTask', payload)
+    })
+    
+    // удаление
+    userTasks.on('child_removed', spanshot => {
+      let taskId = spanshot.key
+      
+      commit('deleteTask', taskId)
+    })
+  },
+  fbAddTask ({}, payload) {
+    const { uid } = firebaseAuth.currentUser
+    const taskId = payload.id
+    let taskRef = firebaseDb.ref(`tasks/${uid}/${taskId}`)
+    taskRef.set(payload.task)
+  },
+  fbUpdateTask ({}, payload) {
+    const { uid } = firebaseAuth.currentUser
+    const taskId = payload.id
+    let taskRef = firebaseDb.ref(`tasks/${uid}/${taskId}`)
+    taskRef.update(payload.updates)
+  },
+  fbDeleteTask ({}, taskId) {
+    const { uid } = firebaseAuth.currentUser
+    let taskRef = firebaseDb.ref(`tasks/${uid}/${taskId}`)
+    taskRef.remove()
   }
 }
 
