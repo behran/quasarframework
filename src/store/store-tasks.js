@@ -1,7 +1,8 @@
 import Vue from 'vue'
 
-import { uid } from 'quasar'
+import { uid, Notify } from 'quasar'
 import { firebaseDb, firebaseAuth } from 'boot/firebase'
+import { showErrorMessage } from 'src/functions/function-show-error-message'
 
 const state = {
   tasks: {
@@ -47,6 +48,9 @@ const mutations = {
   },
   setTaskDownloaded (state, value) {
     state.taskDownloaded = value
+  },
+  clearTasks (state) {
+    state.tasks = {}
   }
 }
 
@@ -77,6 +81,9 @@ const actions = {
     
     userTasks.once('value', spanshot => {
       commit('setTaskDownloaded', true)
+    }, error => {
+      showErrorMessage(error.message)
+      this.$router.push('/auth')
     })
     
     userTasks.on('child_added', spanshot => {
@@ -105,21 +112,44 @@ const actions = {
     })
   },
   fbAddTask ({}, payload) {
-    const { uid } = firebaseAuth.currentUser
+    let { uid } = firebaseAuth.currentUser
     const taskId = payload.id
     let taskRef = firebaseDb.ref(`tasks/${uid}/${taskId}`)
-    taskRef.set(payload.task)
+    taskRef.set(payload.task, error => {
+      if (error) {
+        showErrorMessage(error.message)
+      } else {
+        Notify.create('Task added!')
+      }
+    })
+    
   },
   fbUpdateTask ({}, payload) {
     const { uid } = firebaseAuth.currentUser
     const taskId = payload.id
     let taskRef = firebaseDb.ref(`tasks/${uid}/${taskId}`)
-    taskRef.update(payload.updates)
+    taskRef.update(payload.updates, error => {
+      if (error) {
+        showErrorMessage(error.message)
+      } else {
+        let keys = Object.keys(payload.updates)
+        if (!(keys.includes('completed') && keys.length === 1)) {
+          Notify.create('Task updated!')
+        }
+        
+      }
+    })
   },
   fbDeleteTask ({}, taskId) {
     const { uid } = firebaseAuth.currentUser
     let taskRef = firebaseDb.ref(`tasks/${uid}/${taskId}`)
-    taskRef.remove()
+    taskRef.remove(error => {
+      if (error) {
+        showErrorMessage(error.message)
+      } else {
+        Notify.create('Task deleted!')
+      }
+    })
   }
 }
 
