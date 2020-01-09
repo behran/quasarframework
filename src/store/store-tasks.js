@@ -25,7 +25,8 @@ const state = {
     // }
   },
   search: '',
-  sort: 'dueDate'
+  sort: 'dueDate',
+  taskDownloaded: false
 }
 
 const mutations = {
@@ -43,6 +44,9 @@ const mutations = {
   },
   setSort (state, value) {
     state.sort = value
+  },
+  setTaskDownloaded (state, value) {
+    state.taskDownloaded = value
   }
 }
 
@@ -70,6 +74,10 @@ const actions = {
   fbReadData ({ commit }) {
     const { uid } = firebaseAuth.currentUser
     let userTasks = firebaseDb.ref(`tasks/${uid}`)
+    
+    userTasks.once('value', spanshot => {
+      commit('setTaskDownloaded', true)
+    })
     
     userTasks.on('child_added', spanshot => {
       let task = spanshot.val()
